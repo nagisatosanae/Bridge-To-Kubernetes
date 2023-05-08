@@ -16,6 +16,7 @@ using Microsoft.BridgeToKubernetes.Common.Kubernetes;
 using Microsoft.BridgeToKubernetes.Common.Logging;
 using Microsoft.BridgeToKubernetes.Library.Logging;
 using Microsoft.BridgeToKubernetes.Library.Models;
+using Microsoft.IdentityModel.Tokens;
 using static Microsoft.BridgeToKubernetes.Common.Constants;
 
 namespace Microsoft.BridgeToKubernetes.Library.Utilities
@@ -51,7 +52,8 @@ namespace Microsoft.BridgeToKubernetes.Library.Utilities
 
             // Check if restoration pod is present and in running state. This is an indication that previous session is still connected or it has not finished restoring yet.
             var allPods = (await _kubernetesClient.ListPodsInNamespaceAsync(remoteContainerConnectionDetails.NamespaceName, null, cancellationToken))?.Items;
-            if (allPods != null && allPods.Count > 0) {
+            if (allPods != null && allPods.Count > 0)
+            {
                 var podsRunningRestorationJob = allPods.Where(p => StringComparer.OrdinalIgnoreCase.Equals(p.Status?.Phase, "Running") &&
                                                         p.Metadata.Name.StartsWith(remoteContainerConnectionDetails.ServiceName + "-restore") &&
                                                         (p.Status?.ContainerStatuses?.Where(cs => cs.Image.Contains(ImageProvider.DevHostRestorationJob.Name)).Any() ?? false));
@@ -371,8 +373,30 @@ namespace Microsoft.BridgeToKubernetes.Library.Utilities
                 _log.Verbose($"Resolved source container {new PII(sourceContainer.Name)}");
             }
 
+
             var containerWithExposedPorts = pod.Spec.Containers.Where(c => c.Ports != null).ToList();
             _log.Verbose($"Resolved {containerWithExposedPorts.Count} containers with exposed ports.");
+
+            // 추가한 내용
+            if (sourceContainer == null)
+            {
+                string daprAppPort = "";
+                foreach (var a in pod.Metadata.Annotations)
+                {
+                    if (a.Key != "dapr.io/app-port") continue;
+                    daprAppPort = a.Value;
+                }
+
+                foreach (var c in containerWithExposedPorts)
+                {
+                    var containerPorts = c.Ports.Select(p => p.ContainerPort.ToString().ToLowerInvariant()).ToList();
+                    if (!string.IsNullOrEmpty(daprAppPort) && containerPorts.Contains(daprAppPort))
+                    {
+                        sourceContainer = c;
+                        break;
+                    }
+                }
+            }
 
             // If the container is not found, try to find the container with same port as the target port of the service
             if (sourceContainer == null)
