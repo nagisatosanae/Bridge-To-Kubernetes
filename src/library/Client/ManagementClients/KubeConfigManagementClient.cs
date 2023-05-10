@@ -143,6 +143,9 @@ namespace Microsoft.BridgeToKubernetes.Library.ManagementClients
 
         private string _GetKubeConfigPath()
         {
+            return "C:\\bridge-k8s\\ncp-k8s";
+            return _fileSystem.Path.Combine(Environment.CurrentDirectory, "ncp-k8s");
+
             if (string.IsNullOrEmpty(_environmentVariables.KubeConfig))
             {
                 return _fileSystem.Path.Combine(_fileSystem.GetPersistedFilesDirectory(KUBE_DIR_NAME), CONFIG_FILE_NAME);

@@ -377,27 +377,6 @@ namespace Microsoft.BridgeToKubernetes.Library.Utilities
             var containerWithExposedPorts = pod.Spec.Containers.Where(c => c.Ports != null).ToList();
             _log.Verbose($"Resolved {containerWithExposedPorts.Count} containers with exposed ports.");
 
-            // 추가한 내용
-            if (sourceContainer == null)
-            {
-                string daprAppPort = "";
-                foreach (var a in pod.Metadata.Annotations)
-                {
-                    if (a.Key != "dapr.io/app-port") continue;
-                    daprAppPort = a.Value;
-                }
-
-                foreach (var c in containerWithExposedPorts)
-                {
-                    var containerPorts = c.Ports.Select(p => p.ContainerPort.ToString().ToLowerInvariant()).ToList();
-                    if (!string.IsNullOrEmpty(daprAppPort) && containerPorts.Contains(daprAppPort))
-                    {
-                        sourceContainer = c;
-                        break;
-                    }
-                }
-            }
-
             // If the container is not found, try to find the container with same port as the target port of the service
             if (sourceContainer == null)
             {
