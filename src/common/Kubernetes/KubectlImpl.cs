@@ -76,21 +76,21 @@ namespace Microsoft.BridgeToKubernetes.Common.Kubernetes
             int timeoutMs = 30000)
         {
 
-            if (!command.Contains("--kubeconfig"))
-            {
-                string[] arr = command.Split(" -- ");
-                for (int i = 0; i < arr.Length; i++)
-                {
-                    if (i == 0)
-                    {
-                        const string kubeConfigPath = "C:\\bridge-k8s\\ncp-k8s";
-                        command = $"{arr[i]} --kubeconfig={kubeConfigPath}";
-                        continue;
-                    }
-                    command = command + " -- " + arr[i];
-                }
-                System.Console.WriteLine("short command : {0}", command);
-            }
+            //if (!command.Contains("--kubeconfig"))
+            //{
+            //    string[] arr = command.Split(" -- ");
+            //    for (int i = 0; i < arr.Length; i++)
+            //    {
+            //        if (i == 0)
+            //        {
+            //            const string kubeConfigPath = "C:\\bridge-k8s\\ncp-k8s";
+            //            command = $"{arr[i]} --kubeconfig={kubeConfigPath}";
+            //            continue;
+            //        }
+            //        command = command + " -- " + arr[i];
+            //    }
+            //    System.Console.WriteLine("short command : {0}", command);
+            //}
 
             _log.Info("Invoking kubectl {0} command: {1}", commandName.ToString(), new PII(command));
             Stopwatch w = new Stopwatch();
@@ -248,21 +248,21 @@ namespace Microsoft.BridgeToKubernetes.Common.Kubernetes
             bool log137ExitCodeErrorAsWarning = false)
         {
 
-            if (!command.Contains("--kubeconfig"))
-            {
-                string[] arr = command.Split(" -- ");
-                for (int i = 0; i < arr.Length; i++)
-                {
-                    if (i == 0)
-                    {
-                        const string kubeConfigPath = "C:\\bridge-k8s\\ncp-k8s";
-                        command = $"{arr[i]} --kubeconfig={kubeConfigPath}";
-                        continue;
-                    }
-                    command = command + " -- " + arr[i];
-                }
-                System.Console.WriteLine("long command : {0}", command);
-            }
+            //if (!command.Contains("--kubeconfig"))
+            //{
+            //    string[] arr = command.Split(" -- ");
+            //    for (int i = 0; i < arr.Length; i++)
+            //    {
+            //        if (i == 0)
+            //        {
+            //            const string kubeConfigPath = "C:\\bridge-k8s\\ncp-k8s";
+            //            command = $"{arr[i]} --kubeconfig={kubeConfigPath}";
+            //            continue;
+            //        }
+            //        command = command + " -- " + arr[i];
+            //    }
+            //    System.Console.WriteLine("long command : {0}", command);
+            //}
 
             Debug.Assert(cancellationToken != default(CancellationToken), "CancellationToken cannot be passed as default for long running operations");
             _log.Info("Invoking kubectl {0} command: {1}", commandName.ToString(), new PII(command));
